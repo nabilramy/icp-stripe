@@ -5,7 +5,6 @@ export const validator = async ({ schema, data }: { schema: yup.ObjectSchema<any
   const result = { isValid: true, error: "" };
 
   try {
-    console.log({ data });
     await schema.validate(data);
   } catch (error: unknown) {
     const validationError = error as yup.ValidationError;

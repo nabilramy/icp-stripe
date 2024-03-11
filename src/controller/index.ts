@@ -4,9 +4,12 @@ import { validator } from "../validation/validator";
 import { createSessionSchema } from "../validation/stripe.schema";
 import isGenericError from "../types/isGenericError";
 import GenericError from "../helpers/GenericError";
+import log from "../helpers/logger";
 
 const createSession = async (req: Request, res: Response) => {
   const { secret_key, currency, unit_amount, quantity, success_url, cancel_url }: any = req.body;
+
+  log('in request createSession')
   try {
     const { isValid, error } = await validator({
       data: req.body,
@@ -38,16 +41,18 @@ const createSession = async (req: Request, res: Response) => {
       success_url,
       cancel_url,
     });
-    console.log({ stripeRes });
+
+    log(`createSession: success ${JSON.stringify(stripeRes)}`)
 
     res.json({ status: 200, id: stripeRes.id, url: stripeRes.url });
   } catch (error: any) {
     if (!isGenericError(error)) {
-      console.log({ error });
+      log(`createSession error: ${JSON.stringify(error)}`)
       throw new GenericError(error, 500);
     }
 
     const typedError = error as GenericError;
+    log(`createSession error: ${JSON.stringify(typedError)}`)
     res.status(typedError.statusCode).json({
       status: typedError.statusCode,
       message: typedError.message,
